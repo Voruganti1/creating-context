@@ -1,33 +1,52 @@
-import React from "react";
-const Main = () => {
-  export const factContext = createContext(undefined);
+import React, { useState, useEffect, createContext } from "react";
+import axios from "axios";
+import { useContext } from "react";
 
-  const RandomFactContext = (props) => {
-    const [randomFact, setRandomFact] = useState("");
-    const URL = "https://catfact.ninja/fact";
+export const bodyOfContext = createContext(undefined);
+const URL = "https://jsonplaceholder.typicode.com/posts";
 
-    async function getData() {
-      const response = await axios.get(URL);
-      setRandomFact(response.data.fact);
-      console.log(randomFact);
+const Main = (props) => {
+  const [data, setData] = useState(null);
+  const [userId, setUserId] = useState(null);
+
+  async function getData() {
+    const response = await axios.get(URL);
+
+    const idList = response.data.map((a) => a.id);
+
+    setData(idList);
+    setUserId(response.data.map((a) => a.userId));
+  }
+
+  useEffect(() => {
+    if (!data) {
+      getData();
     }
+  }, []);
 
-    useEffect(() => {
-      if (!randomFact) {
-        getData();
-      }
-    }, []);
+  console.log("data inside async function", data);
 
-    return (
-      <factContext.Provider
-        value={{
-          randomFact,
-        }}
-      >
-        {props.children}
-      </factContext.Provider>
-    );
-  };
-  return <div></div>;
+  return (
+    <bodyOfContext.Provider
+      value={{
+        data,
+        userId,
+        sortFunction: () => console.log("sorted"),
+      }}
+    >
+      {props.children}
+    </bodyOfContext.Provider>
+  );
 };
+
+export function useBodyOfData() {
+  const context = useContext(bodyOfContext);
+
+  if (!context) {
+    throw new Error("useBodyOfData custom hook doesn't work properly");
+  }
+
+  return context;
+}
+
 export default Main;
