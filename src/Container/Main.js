@@ -31,7 +31,7 @@ const Main = (props) => {
       value={{
         data,
         userId,
-        sortFunction: () => console.log("sorted"),
+        // sortFunction: () => console.log("sorted"),
       }}
     >
       {props.children}
